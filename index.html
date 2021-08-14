@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+  <script src="js/NetworkUtil.js"></script>
+  <script src="js/Classes.js"></script>
+  <script src="js/FindUtils.js"></script>
+  <script src="js/PrintUtils.js"></script>
+
+  <style>
+    hr {
+      margin: 8px;
+      border: 0;
+      border-top: 3px solid rgb(13, 63, 180);
+    }
+
+    .w-50,
+    .w-25,
+    .fs-4 {
+      margin: 16px;
+    }
+
+    .btn-margin {
+      margin-left: 20%;
+    }
+  </style>
+
+  <title>Welcome to HR system!</title>
+
+  <script>
+    window.addEventListener("load", initialize)
+
+    var searchButton;
+    var searchBy = new Array("All", "Country", "Location", "Region");
+    var locations = [];
+    var countries = [];
+    var regions = [];
+
+    function initialize() {
+      // Get Data from server
+      getCountries()
+      getLocations()
+      getRegions()
+
+      // Add click listener to search button
+      searchButton = document.getElementById('searchBtn');
+      searchButton.addEventListener("click", search)
+
+      // Add list items to search list
+      var searchUl = document.getElementById("searchFilter")
+      addSearchByFilters(searchUl)
+
+      // Update search button label
+      searchButton.innerHTML = "Search in: " + searchBy[0]
+
+      // Add click listener to the list items
+      var items = document.querySelectorAll("#searchFilter li")
+      for (var i = 0; i < items.length; i++) {
+        items[i].onclick = function () {
+          searchButton.innerHTML = "Search in: " + this.id
+        };
+      }
+
+
+    }
+
+    function initAddCountryInputs() {
+
+      document.getElementById("country_id").value = ""
+      document.getElementById("country_name").value = ""
+      document.getElementById("regionSelect").value = ""
+
+      var select = document.getElementById("regionSelect")
+
+      select.innerHTML = ""
+
+      for (var r in regions) {
+        select.innerHTML += "<option value='" + regions[r].id + "'>" + regions[r].name + "</option>";
+      }
+    }
+
+    function refresh() {
+      locations = [];
+      countries = [];
+      regions = [];
+
+      getCountries()
+      getLocations()
+      getRegions()
+
+      alert("Data has been refreshed")
+    }
+
+    function addSearchByFilters(ul) {
+      for (var i = 0; i < searchBy.length; i++) {
+        ul.innerHTML += "<li class='dropdown-item' id='" + searchBy[i] + "'>" + searchBy[i] + "</li>"
+      }
+    }
+
+    function search() {
+      var input = document.getElementById('searchText').value
+      var filter = searchButton.innerHTML.split(":")[1].trim()
+      var searchResult;
+
+      switch (filter) {
+        case searchBy[0]: searchResult = findInAll(input); break;
+        case searchBy[1]: searchResult = findCountryByName(input); printCountries(searchResult, true); break;
+        case searchBy[2]: searchResult = findLocationByCity(input); printLocations(searchResult, true); break;
+        case searchBy[3]: searchResult = findRegionByName(input); printRegions(searchResult, true); break;
+      }
+
+    }
+
+  </script>
+
+
+</head>
+
+<body class="bg-primary p-2 text-dark bg-opacity-25">
+  <br>
+  <!-- Search box and his buttons   ************************************************* -->
+  <div class="input-group mb-3 w-75 p-3">
+    <input id="searchText" type="text" class="form-control" placeholder="Search" aria-label="Recipient's username"
+      aria-describedby="button-addon2">
+
+    <button id="searchBtn" type="button" class="btn btn-primary">
+      Serach by
+    </button>
+
+    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"
+      aria-expanded="false">
+      <span class="visually-hidden">Toggle Dropright</span>
+    </button>
+
+    <ul id="searchFilter" class="dropdown-menu dropdown-menu-end">
+    </ul>
+
+    <button type="button" class="btn btn-success" onclick="refresh()">Refresh</button>
+  </div>
+
+  <!-- The list that shows the rearch result  ************************************************* -->
+  <p class="fs-4">Results</p>
+  <ol id="resultList" class="list-group w-50">
+  </ol>
+
+  <hr />
+
+  <!-- Add new Country form   ************************************************* -->
+  <p class="fs-4">Add new Country</p>
+  <div class="form-floating mb-3 w-25">
+    <input type="text" class="form-control" id="country_id" maxlength="2" placeholder="id">
+    <label for="floatingInput">Country id</label>
+  </div>
+  <div class="form-floating mb-3 w-25">
+    <input type="text" class="form-control" id="country_name" maxlength="25" placeholder="name">
+    <label for="floatingInput">Country name</label>
+  </div>
+  <div class="form-floating w-25">
+    <select class="form-select" id="regionSelect"></select>
+    <label for="floatingSelect">Region</label>
+
+  </div>
+  <br>
+  <button type="button" class="btn btn-primary btn-margin" onclick="post()">Submit</button>
+
+
+  <!-- Bootstrap scripts   ************************************************* -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>
